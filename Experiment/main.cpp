@@ -1,53 +1,74 @@
+#include <memory>
 #include <iostream>
 #include <vector>
 #include <functional>
 #include <algorithm>
 #include <string>
 #include <format>
+#include <string_view>
 using namespace std;
 
-class MyClass
+class C
+{
+public:
+	C()
+	{
+		cout << "설치 C" << endl;
+	}
+	~C()
+	{
+		cout << "해제C " << endl;
+	}
+};
+struct Node
+{
+	C m_c;
+	std::shared_ptr<Node> childNode;
+
+	Node()
+	{
+		cout << "노드 생성" << endl;
+	}
+	~Node()
+	{
+		cout << "노드 해제" << endl;
+	}
+};
+
+class Test
 {
 private:
-	string m_str;
-	string m_str2;
+	std::shared_ptr<Node> test;
 
 public:
-	MyClass() = default;
-	MyClass(const MyClass& src) = default;
-	MyClass(string str) : m_str(move(str)) { }
-	virtual ~MyClass() = default;
-
-	MyClass& operator=(MyClass&& rhs) noexcept
+	Test()
 	{
-		if (this == &rhs)
-			return *this;
-
-		m_str = move(rhs.m_str);
-		cout << format("Move operator= (m_str={})", m_str) << endl;
-		return *this;
+		test = make_shared<Node>();
+		test->childNode = make_shared<Node>();
+		cout << "클래스 생성" << endl;
 	}
 
-	void setString(string str)
+	~Test()
 	{
-		m_str = move(str);
+		cout << "클래스 해제" << endl;
 	}
+};
 
-	const string& getString() const
+class A
+{
+private:
+	std::shared_ptr<Test> m_test;
+
+public:
+	A()
 	{
-		return m_str;
+		m_test = make_shared<Test>();
 	}
 };
 
 int main()
 {
-	vector<MyClass> vecSrc({ MyClass("a"), MyClass("b"), MyClass("c") });
-	vector<MyClass> vecDst(vecSrc.size());
+	std::shared_ptr<A> test = make_shared<A>();
 
-	move(begin(vecSrc), end(vecSrc), begin(vecDst));
-	for (const auto& c : vecDst)
-	{
-		cout << c.getString() << " ";
-	}
 	return 0;
 }
